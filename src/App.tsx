@@ -2,19 +2,21 @@
 import { useEffect, useState } from "react";
 import { supabase, createProfileIfNotExists } from "./lib/supabase";
 import Home from "./pages/Home";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isCallback, setIsCallback] = useState(false);
   
   const signInWithGoogle = async () => {
-  await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: import.meta.env.VITE_SITE_URL,
-    },
-  });
-};
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${import.meta.env.VITE_SITE_URL}auth/callback`,
+      },
+    });
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -22,6 +24,13 @@ function App() {
   };
 
   useEffect(() => {
+    // Check if we're on the callback route
+    const hash = window.location.hash;
+    if (hash.includes("access_token") || hash.includes("code")) {
+      setIsCallback(true);
+      return;
+    }
+
     async function getSession() {
       const {
         data: { session },
@@ -46,6 +55,10 @@ function App() {
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  if (isCallback) {
+    return <AuthCallback />;
+  }
 
   if (loading) return <div>Loading...</div>;
 
