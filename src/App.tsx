@@ -8,11 +8,13 @@ function App() {
   const [loading, setLoading] = useState(true);
   
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
-  };
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: import.meta.env.VITE_SITE_URL,
+    },
+  });
+};
 
   const signOut = async () => {
     await supabase.auth.signOut();
