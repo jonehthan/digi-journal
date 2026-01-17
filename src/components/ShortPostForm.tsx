@@ -14,9 +14,12 @@ const ShortPostForm = ({ user }: ShortPostFormProps) => {
     e.preventDefault();
     setLoading(true);
 
+    const authorName = user?.user_metadata?.full_name || user?.email || "Unknown";
+
     const { error } = await supabase.from("short_posts").insert([
       {
         author_id: user.id,
+        author_name: authorName,
         content,
         link: link || null,
         type: "short",
@@ -34,11 +37,11 @@ const ShortPostForm = ({ user }: ShortPostFormProps) => {
 
   return (
     <form
-      className="flex flex-col space-y-2 bg-gray-800 p-4 rounded shadow-md"
+      className="flex flex-col space-y-4 bg-gray-900 bg-opacity-60 p-5 rounded-2xl border border-gray-800"
       onSubmit={handleSubmit}
     >
       <textarea
-        className="p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="p-3 rounded-xl bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700 text-white placeholder-gray-500 min-h-28 resize-none"
         placeholder="What's on your mind?"
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -46,17 +49,17 @@ const ShortPostForm = ({ user }: ShortPostFormProps) => {
         rows={3}
       />
       <input
-        className="p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        placeholder="Link (optional)"
+        className="p-3 rounded-xl bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-700 text-white placeholder-gray-500"
+        placeholder="Add a link (optional)"
         value={link}
         onChange={(e) => setLink(e.target.value)}
       />
       <button
         type="submit"
-        className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-500 transition disabled:opacity-50"
+        className="bg-blue-600 px-6 py-3 rounded-xl hover:bg-blue-500 transition disabled:opacity-50 font-semibold active:scale-95"
         disabled={loading}
       >
-        {loading ? "Posting..." : "Post"}
+        {loading ? "Publishing..." : "Publish"}
       </button>
     </form>
   );

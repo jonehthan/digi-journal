@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
-export default function AuthCallback() {
+interface AuthCallbackProps {
+  onCallbackComplete: (complete: boolean) => void;
+}
+
+export default function AuthCallback({ onCallbackComplete }: AuthCallbackProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the session from Supabase
+        // Supabase automatically handles the hash params
+        // Just need to get the session after redirect
         const {
           data: { session },
           error,
@@ -16,34 +21,36 @@ export default function AuthCallback() {
         if (error) {
           setError(error.message);
           setTimeout(() => {
+            // Clean the URL and mark as complete
             window.location.hash = "";
-            window.location.pathname = "/digi-journal/";
-          }, 3000);
+            onCallbackComplete(true);
+          }, 2000);
           return;
         }
 
         if (session) {
-          // Session established successfully, redirect to home
+          // Session established successfully
+          // Clean the URL and mark as complete to trigger re-render
           window.location.hash = "";
-          window.location.pathname = "/digi-journal/";
+          onCallbackComplete(true);
         } else {
           setError("No session found");
           setTimeout(() => {
             window.location.hash = "";
-            window.location.pathname = "/digi-journal/";
-          }, 3000);
+            onCallbackComplete(true);
+          }, 2000);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
         setTimeout(() => {
           window.location.hash = "";
-          window.location.pathname = "/digi-journal/";
-        }, 3000);
+          onCallbackComplete(true);
+        }, 2000);
       }
     };
 
     handleAuthCallback();
-  }, []);
+  }, [onCallbackComplete]);
 
   if (error) {
     return (
